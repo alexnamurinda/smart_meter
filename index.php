@@ -23,41 +23,6 @@
         crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-    <?php
-    //PDO database connection
-    include 'databasecreation.php';
-    include 'db.php';
-
-    $statusMessage = '';
-
-    // contact form submission
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Get the input values
-        $name = $_POST['name'];
-        $email = $_POST['email'];
-        $subject = $_POST['subject'];
-        $message = $_POST['message'];
-        $sql = "INSERT INTO feedbacks (client_name, client_email, feedback_subject, feedback_message) VALUES (:name, :email, :subject, :message)";
-
-        try {
-            // Prepare the statement
-            $stmt = $conn->prepare($sql);
-
-            // Bind parameters to the statement
-            $stmt->bindParam(':name', $name);
-            $stmt->bindParam(':email', $email);
-            $stmt->bindParam(':subject', $subject);
-            $stmt->bindParam(':message', $message);
-
-            $stmt->execute();
-
-            // Set success message with user input
-            $statusMessage = "Message sent successfully! We shall contact you soon!";
-        } catch (PDOException $e) {
-            $statusMessage = "Error: " . $e->getMessage();
-        }
-    }
-    ?>
 
     <script>
         // Function to show the popup and hide it after 2 seconds
@@ -271,13 +236,7 @@
     </section>
 
     <section class="contact-section" id="contact-section">
-        <?php if ($statusMessage): ?>
-            <div id="popup" class="popup"></div>
-            <script>
-                // Display popup with PHP message
-                showPopup("<?php echo $statusMessage; ?>");
-            </script>
-        <?php endif; ?>
+
 
         <div class="contact-container">
             <h2 style="text-align: center; margin-bottom: 1rem;">Contact Us</h2>
