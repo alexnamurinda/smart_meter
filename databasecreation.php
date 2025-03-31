@@ -82,7 +82,8 @@ try {
     // Create the daily_energy_consumption table
     $createdaily_energy_consumptionTableQuery = "
     CREATE TABLE IF NOT EXISTS daily_energy_consumption (
-        date DATE PRIMARY KEY,
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        date DATE NOT NULL UNIQUE,
         energy_consumed DECIMAL(10,3) NOT NULL
     ) ENGINE=InnoDB;
     ";
@@ -130,7 +131,7 @@ try {
         payment_method VARCHAR(50) NOT NULL,
         payment_details TEXT,
         transaction_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (client_id) REFERENCES clients(client_id)
+        FOREIGN KEY (client_id) REFERENCES clients(client_id) 
     )   ENGINE=InnoDB;
     ";
     $conn->exec($createtransactionsTableQuery);
@@ -143,8 +144,7 @@ try {
         energy_consumed DECIMAL(10, 3) NOT NULL,
         energy_added DECIMAL(10, 3) DEFAULT NULL,
         date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE CASCADE,
-        FOREIGN KEY (room_id) REFERENCES room_energy(room_id) ON DELETE CASCADE
+        FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE CASCADE
     ) ENGINE=InnoDB;
     ";
     $conn->exec($createRoomEnergyHistoryTableQuery);
