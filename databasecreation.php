@@ -1,22 +1,15 @@
 <?php
-// Database connection details
-$db_host = 'localhost';
-$db_user = 'root';
-$db_password = '';
-$db_name = 'kooza_db';
+// Include the database connection
+include 'db.php';
 
 try {
-    // Connect to MySQL server without specifying a database
-    $pdo = new PDO("mysql:host=$db_host;", $db_user, $db_password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     // Check if the database exists, if not, create it
     $createDbQuery = "CREATE DATABASE IF NOT EXISTS $db_name";
-    $pdo->exec($createDbQuery);
+    $conn->exec($createDbQuery);
 
     // Connect to the newly created database
-    $pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $conn = new PDO("mysql:host=$hostname;dbname=$db_name", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Create the apartments table
     $createapartmentsTableQuery = "
@@ -26,7 +19,7 @@ try {
         name VARCHAR(50) NOT NULL
     ) ENGINE=InnoDB;
     ";
-    $pdo->exec($createapartmentsTableQuery);
+    $conn->exec($createapartmentsTableQuery);
 
     // Create the rooms table
     $createroomsTableQuery = "
@@ -39,7 +32,7 @@ try {
         FOREIGN KEY (apartment_id) REFERENCES apartments(apartment_id) ON DELETE CASCADE
     ) ENGINE=InnoDB;
     ";
-    $pdo->exec($createroomsTableQuery);
+    $conn->exec($createroomsTableQuery);
 
     // Create the clients table
     $createclientsTableQuery = "
@@ -59,7 +52,7 @@ try {
         FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE CASCADE   
     ) ENGINE=InnoDB;
     ";
-    $pdo->exec($createclientsTableQuery);
+    $conn->exec($createclientsTableQuery);
 
     // Create the admin_notifications table
     $createadmin_notificationsQuery = "
@@ -72,7 +65,7 @@ try {
         FOREIGN KEY (client_id) REFERENCES clients(client_id) ON DELETE CASCADE
     ) ENGINE=InnoDB;
     ";
-    $pdo->exec($createadmin_notificationsQuery);
+    $conn->exec($createadmin_notificationsQuery);
 
     // Create the admin table
     $createAdminTableQuery = "
@@ -84,7 +77,7 @@ try {
         last_login DATETIME DEFAULT NULL
     ) ENGINE=InnoDB;
     ";
-    $pdo->exec($createAdminTableQuery);
+    $conn->exec($createAdminTableQuery);
 
     // Create the daily_energy_consumption table
     $createdaily_energy_consumptionTableQuery = "
@@ -93,7 +86,7 @@ try {
         energy_consumed DECIMAL(10,3) NOT NULL
     ) ENGINE=InnoDB;
     ";
-    $pdo->exec($createdaily_energy_consumptionTableQuery);
+    $conn->exec($createdaily_energy_consumptionTableQuery);
 
     // Create the feedbacks table
     $createFeedbackTableQuery = "
@@ -108,7 +101,7 @@ try {
         FOREIGN KEY (client_id) REFERENCES clients(client_id) ON DELETE CASCADE
     ) ENGINE=InnoDB;
     ";
-    $pdo->exec($createFeedbackTableQuery);
+    $conn->exec($createFeedbackTableQuery);
 
     // Create the room_energy table with comprehensive tracking columns
     $createRoomEnergyTableQuery = "
@@ -124,8 +117,7 @@ try {
         FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE CASCADE
     ) ENGINE=InnoDB;
     ";
-    $pdo->exec($createRoomEnergyTableQuery);
-
+    $conn->exec($createRoomEnergyTableQuery);
 
     // Create the transactions table
     $createtransactionsTableQuery = "
@@ -141,21 +133,21 @@ try {
         FOREIGN KEY (client_id) REFERENCES clients(client_id)
     )   ENGINE=InnoDB;
     ";
-    $pdo->exec($createtransactionsTableQuery);
+    $conn->exec($createtransactionsTableQuery);
 
     // Create the room_energy_history table
     $createRoomEnergyHistoryTableQuery = "
-CREATE TABLE IF NOT EXISTS room_energy_history (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    room_id VARCHAR(50) NOT NULL,
-    energy_consumed DECIMAL(10, 3) NOT NULL,
-    energy_added DECIMAL(10, 3) DEFAULT NULL,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE CASCADE,
-    FOREIGN KEY (room_id) REFERENCES room_energy(room_id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-";
-    $pdo->exec($createRoomEnergyHistoryTableQuery);
+    CREATE TABLE IF NOT EXISTS room_energy_history (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        room_id VARCHAR(50) NOT NULL,
+        energy_consumed DECIMAL(10, 3) NOT NULL,
+        energy_added DECIMAL(10, 3) DEFAULT NULL,
+        date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE CASCADE,
+        FOREIGN KEY (room_id) REFERENCES room_energy(room_id) ON DELETE CASCADE
+    ) ENGINE=InnoDB;
+    ";
+    $conn->exec($createRoomEnergyHistoryTableQuery);
 } catch (PDOException $e) {
     die("ERROR: Could not connect. " . $e->getMessage());
 }

@@ -1,11 +1,8 @@
 <?php
 // update_consumption.php - Endpoint to update room energy consumption
 
-// Database connection details
-$db_host = 'localhost';
-$db_user = 'root';
-$db_password = '';
-$db_name = 'kooza_db';
+// Include the database connection
+include 'db.php';
 
 // Set headers to allow cross-origin requests if needed
 header('Content-Type: application/json');
@@ -44,37 +41,33 @@ if (count($roomIds) !== count($remainingUnits) || count($roomIds) !== count($con
 }
 
 try {
-    // Connect to the database
-    $pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
     // Begin transaction for consistency
-    $pdo->beginTransaction();
-    
+    $conn->beginTransaction();
+
     // Process each room
     for ($i = 0; $i < count($roomIds); $i++) {
         $roomId = $roomIds[$i];
         $remaining = floatval($remainingUnits[$i]);
         $consumed = floatval($consumedEnergy[$i]);
-        
+
         // First check if the room exists in the rooms table
-        $checkRoomStmt = $pdo->prepare("SELECT room_id FROM rooms WHERE room_id = :room_id");
+        $checkRoomStmt = $conn->prepare("SELECT room_id FROM rooms WHERE room_id = :room_id");
         $checkRoomStmt->bindParam(':room_id', $roomId);
         $checkRoomStmt->execute();
-        
+
         if ($checkRoomStmt->rowCount() === 0) {
             // Room doesn't exist, skip this entry
             continue;
         }
-        
+
         // Check if the room already has an entry in room_energy
-        $checkEnergyStmt = $pdo->prepare("SELECT id FROM room_energy WHERE room_id = :room_id");
+        $checkEnergyStmt = $conn->prepare("SELECT id FROM room_energy WHERE room_id = :room_id");
         $checkEnergyStmt->bindParam(':room_id', $roomId);
         $checkEnergyStmt->execute();
-        
+
         if ($checkEnergyStmt->rowCount() > 0) {
             // Update existing record
-            $updateStmt = $pdo->prepare("UPDATE room_energy SET 
+            $updateStmt = $conn->prepare("UPDATE room_energy SET 
                                         energy_consumed = :consumed, 
                                         remaining_units = :remaining 
                                         WHERE room_id = :room_id");
@@ -84,7 +77,7 @@ try {
             $updateStmt->execute();
         } else {
             // Insert new record
-            $insertStmt = $pdo->prepare("INSERT INTO room_energy 
+            $insertStmt = $conn->prepare("INSERT INTO room_energy 
                                         (room_id, energy_consumed, remaining_units) 
                                         VALUES (:room_id, :consumed, :remaining)");
             $insertStmt->bindParam(':room_id', $roomId);
@@ -92,7 +85,7 @@ try {
             $insertStmt->bindParam(':remaining', $remaining);
             $insertStmt->execute();
         }
-        
+
         // Add to updated rooms array
         $response['updated_rooms'][] = array(
             'room_id' => $roomId,
@@ -100,19 +93,19 @@ try {
             'remaining' => $remaining
         );
     }
-    
+
     // Update daily energy consumption
     $today = date('Y-m-d');
     $totalConsumed = array_sum($consumedEnergy);
-    
+
     // Check if we have an entry for today
-    $checkDailyStmt = $pdo->prepare("SELECT date FROM daily_energy_consumption WHERE date = :date");
+    $checkDailyStmt = $conn->prepare("SELECT date FROM daily_energy_consumption WHERE date = :date");
     $checkDailyStmt->bindParam(':date', $today);
     $checkDailyStmt->execute();
-    
+
     if ($checkDailyStmt->rowCount() > 0) {
         // Update existing daily record
-        $updateDailyStmt = $pdo->prepare("UPDATE daily_energy_consumption 
+        $updateDailyStmt = $conn->prepare("UPDATE daily_energy_consumption 
                                           SET energy_consumed = energy_consumed + :total_consumed 
                                           WHERE date = :date");
         $updateDailyStmt->bindParam(':total_consumed', $totalConsumed);
@@ -120,27 +113,26 @@ try {
         $updateDailyStmt->execute();
     } else {
         // Insert new daily record
-        $insertDailyStmt = $pdo->prepare("INSERT INTO daily_energy_consumption 
+        $insertDailyStmt = $conn->prepare("INSERT INTO daily_energy_consumption 
                                           (date, energy_consumed) 
                                           VALUES (:date, :total_consumed)");
         $insertDailyStmt->bindParam(':date', $today);
         $insertDailyStmt->bindParam(':total_consumed', $totalConsumed);
         $insertDailyStmt->execute();
     }
-    
+
     // Commit the transaction
-    $pdo->commit();
-    
+    $conn->commit();
+
     // Set success response
     $response['success'] = true;
     $response['message'] = 'Consumption data updated successfully';
-    
 } catch (PDOException $e) {
     // Roll back the transaction if something failed
-    if ($pdo->inTransaction()) {
-        $pdo->rollBack();
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
     }
-    
+
     $response['message'] = 'Database error: ' . $e->getMessage();
 } catch (Exception $e) {
     // Handle any other exceptions
@@ -149,4 +141,3 @@ try {
 
 // Send the response
 echo json_encode($response);
-?>

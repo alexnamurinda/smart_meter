@@ -1,25 +1,19 @@
 <?php
-// Database connection
-$db_host = 'localhost';
-$db_user = 'root';
-$db_password = '';
-$db_name = 'kooza_db';
+// Include the database connection
+include 'db.php';
 
 try {
-    $pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $room_id = $_POST['room_id'];
         $units = floatval($_POST['units']);
 
         // Check if room exists
-        $stmt = $pdo->prepare("SELECT * FROM room_energy WHERE room_id = ?");
+        $stmt = $conn->prepare("SELECT * FROM room_energy WHERE room_id = ?");
         $stmt->execute([$room_id]);
 
         if ($stmt->rowCount() > 0) {
             // Update remaining units
-            $stmt = $pdo->prepare("UPDATE room_energy SET remaining_units = remaining_units + ? WHERE room_id = ?");
+            $stmt = $conn->prepare("UPDATE room_energy SET remaining_units = remaining_units + ? WHERE room_id = ?");
             $stmt->execute([$units, $room_id]);
 
             // Notify ESP32

@@ -1,6 +1,6 @@
 <!-- Backend logic -->
 <?php
-include 'db.php'; //database connection.
+include 'db.php'; // Include the database connection.
 include 'databasecreation.php';
 
 session_start();
@@ -9,10 +9,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     $username = trim($_POST['phone_number']); // Used for both phone numbers and admin names
     $password = $_POST['password'];
 
-    // Database connection
+    // Authentication logic
     try {
-        $conn = new PDO("mysql:host=localhost;dbname=kooza_db", "root", "");
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        // Use the existing connection from db.php
+        // $conn already contains the PDO connection
     } catch (PDOException $e) {
         die("Database connection failed: " . $e->getMessage());
     }
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     }
 }
 
-
+// Phone number normalization function
 function normalizePhoneNumber($phone_number)
 {
     $phone_number = preg_replace('/\D/', '', $phone_number); // Remove non-numeric characters
@@ -200,7 +200,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">

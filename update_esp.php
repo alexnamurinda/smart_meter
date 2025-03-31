@@ -1,21 +1,15 @@
 <?php
 header('Content-Type: application/json');
 
-// Database connection
-$db_host = 'localhost';
-$db_user = 'root';
-$db_password = '';
-$db_name = 'kooza_db';
+// Include the database connection
+include 'db.php';
 
 try {
-    $pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     if (isset($_GET['room_id'])) {
         $room_id = $_GET['room_id'];
 
         // Fetch remaining units
-        $stmt = $pdo->prepare("SELECT remaining_units FROM room_energy WHERE room_id = ?");
+        $stmt = $conn->prepare("SELECT remaining_units FROM room_energy WHERE room_id = ?");
         $stmt->execute([$room_id]);
 
         if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

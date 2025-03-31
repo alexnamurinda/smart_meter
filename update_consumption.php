@@ -1,24 +1,17 @@
 <?php
 header('Content-Type: application/json');
 
-// Database connection
-$db_host = 'localhost';
-$db_user = 'root';
-$db_password = '';
-$db_name = 'kooza_db';
+// Include the database connection
+include 'db.php';
 
 try {
-    // Establish database connection
-    $pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     // Check if POST request has required parameters
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['room_id']) && isset($_POST['energy_consumed'])) {
         $room_id = $_POST['room_id'];
         $energy_consumed = floatval($_POST['energy_consumed']);
 
         // Prepare the update query
-        $stmt = $pdo->prepare("UPDATE room_energy SET energy_consumed = energy_consumed + ?, remaining_units = remaining_units - ? WHERE room_id = ?");
+        $stmt = $conn->prepare("UPDATE room_energy SET energy_consumed = energy_consumed + ?, remaining_units = remaining_units - ? WHERE room_id = ?");
         $stmt->execute([$energy_consumed, $energy_consumed, $room_id]);
 
         // Check if the update was successful

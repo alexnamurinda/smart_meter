@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php';
+include 'db.php'; // Include the database connection from db.php
 
 // Checking if the user is logged in
 if (!isset($_SESSION['user'])) {
@@ -11,33 +11,9 @@ if (!isset($_SESSION['user'])) {
 // Access the session data (phone_number)
 $phone_number = $_SESSION['user']['phone_number'];
 
-// Database connection function
-function getDatabaseConnection()
-{
-    $host = 'localhost';
-    $dbname = 'kooza_db';
-    $username = 'root';
-    $password = '';
-
-    try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        return $pdo;
-    } catch (PDOException $e) {
-        error_log("Database Connection Error: " . $e->getMessage());
-        return null;
-    }
-}
-
-$pdo = getDatabaseConnection();
-if (!$pdo) {
-    echo json_encode(["error" => "Database connection failed."]);
-    exit();
-}
-
 // Fetch user details using PDO
 $sql = "SELECT * FROM clients WHERE phone_number = :phone_number LIMIT 1";
-$stmt = $pdo->prepare($sql);
+$stmt = $conn->prepare($sql);
 $stmt->bindParam(':phone_number', $phone_number, PDO::PARAM_STR);
 $stmt->execute();
 
@@ -120,12 +96,12 @@ if (empty($room_id)) {
     ];
 } else {
     // Fetch room energy data
-    $room_energy_data = fetchRoomEnergyData($room_id, $pdo);
+    $room_energy_data = fetchRoomEnergyData($room_id, $conn);
     $energy_consumed = $room_energy_data['energy_consumed'] ?? 0;
     $remaining_units = $room_energy_data['remaining_units'] ?? 0;
 
     // Fetch and store hourly energy data
-    $room_hourly_data = fetchAndStoreHourlyRoomEnergyData($room_id, $pdo);
+    $room_hourly_data = fetchAndStoreHourlyRoomEnergyData($room_id, $conn);
 
     // Prepare data for JavaScript
     $response = [
@@ -138,3 +114,4 @@ if (empty($room_id)) {
 
 // Send JSON response
 echo json_encode($response);
+?>

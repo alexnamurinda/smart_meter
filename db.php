@@ -1,11 +1,11 @@
 <?php
 $hostname = 'localhost';
-$db = 'kooza_db';
+$db_name = 'kooza_db';
 $username = 'root';
 $password = '';
 $charset = 'utf8mb4';
 
-$dsn = "mysql:host=$hostname;dbname=$db;charset=$charset";
+$dsn = "mysql:host=$hostname;dbname=$db_name;charset=$charset";
 $options = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,

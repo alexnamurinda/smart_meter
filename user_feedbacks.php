@@ -1,21 +1,7 @@
 <?php
-// Start session and include database connection
+// Start session and include the database connection
 session_start();
-function getDatabaseConnection()
-{
-    $host = 'localhost';
-    $dbname = 'kooza_db';
-    $username = 'root';
-    $password = '';
-
-    try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        return $pdo;
-    } catch (PDOException $e) {
-        die("Database connection failed: " . $e->getMessage());
-    }
-}
+include 'db.php';
 
 // // Check if the admin is logged in
 // if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
@@ -25,11 +11,11 @@ function getDatabaseConnection()
 
 // Fetch feedbacks from the database
 $query = "SELECT client_name, client_email, feedback_subject, feedback_message, submitted_on FROM feedbacks ORDER BY submitted_on DESC";
-$pdo = getDatabaseConnection();
-$stmt = $pdo->prepare($query);
+$stmt = $conn->prepare($query);
 $stmt->execute();
 $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 
 <!DOCTYPE html>
