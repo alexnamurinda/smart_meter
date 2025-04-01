@@ -1,52 +1,7 @@
 <?php
 // Start session and include the database connection
-include 'db.php';
 session_start();
-
-// Check if the admin is logged in
-if (
-    !isset($_SESSION['admin']) ||
-    !is_array($_SESSION['admin']) ||
-    empty($_SESSION['admin']) ||
-    !isset($_SESSION['admin']['name']) ||
-    !isset($_SESSION['admin']['admin_name']) ||
-    !isset($_SESSION['admin']['authenticated']) ||
-    $_SESSION['admin']['authenticated'] !== true
-) {
-
-    // Clear session and redirect
-    session_unset();
-    session_destroy();
-    header("Location: login.php?error=unauthorized");
-    exit();
-}
-
-// Set timeout for inactivity (e.g., 30 minutes)
-$inactive = 1800;
-if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactive)) {
-    // Session has expired
-    session_unset();
-    session_destroy();
-    header("Location: login.php?error=session_expired");
-    exit();
-}
-
-// Update last activity time
-$_SESSION['last_activity'] = time();
-
-// Optional: Check if IP has changed (potential session hijacking)
-if (!isset($_SESSION['ip_address'])) {
-    $_SESSION['ip_address'] = $_SERVER['REMOTE_ADDR'];
-} elseif ($_SESSION['ip_address'] !== $_SERVER['REMOTE_ADDR']) {
-    // IP address has changed, possible session hijacking
-    session_unset();
-    session_destroy();
-    header("Location: login.php?error=security_violation");
-    exit();
-}
-
-$admin_name = $_SESSION['admin']['name'];  // Admin's full name
-$admin_username = $_SESSION['admin']['admin_name'];  // Admin's username
+include 'db.php';
 
 // Fetch feedbacks from the database
 $query = "SELECT client_name, client_email, feedback_subject, feedback_message, submitted_on FROM feedbacks ORDER BY submitted_on DESC";
@@ -55,13 +10,15 @@ $stmt->execute();
 $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Feedbacks</title>
+    <title>User feedbacks</title>
     <link rel="stylesheet" href="admnstyling.css">
     <style>
         .container {
@@ -165,8 +122,7 @@ $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="admin-dashboard">
         <header class="admin-header">
             <h1>Admin Dashboard - SMART_METER_PROJECT</h1>
-            <p>Welcome, <?php echo htmlspecialchars($admin_name); ?>!</p>
-            <p>Centralized Control for Smarter Energy Solutions and User Accounts.</p>
+            <p>Centralized Control for Smarter Energy Solutions and User accounts.</p>
         </header>
 
         <button onclick="window.location.href='admindashboard.php'">Back to Dashboard</button>
@@ -205,12 +161,14 @@ $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="empty-message">No feedbacks found.</div>
             <?php endif; ?>
         </div>
+
     </div>
 
     <footer class="admin-footer">
-        <p>&copy; 2024 Kooza Technologies. All Rights Reserved.</p>
+        <p>&copy; 2024 kooza technologies. All Rights Reserved.</p>
         <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
     </footer>
+
 </body>
 
 </html>
