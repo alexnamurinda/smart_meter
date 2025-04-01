@@ -3,7 +3,7 @@
 include 'db.php';
 session_start();
 
-// Admin session validation
+// Check if the admin is logged in
 if (
     !isset($_SESSION['admin']) ||
     !is_array($_SESSION['admin']) ||
@@ -17,34 +17,36 @@ if (
     // Clear session and redirect
     session_unset();
     session_destroy();
-    header("Location: getstarted.php?error=unauthorized");
+    header("Location: login.php?error=unauthorized");
     exit();
 }
 
-// Set timeout for inactivity (30 minutes)
+// Set timeout for inactivity (e.g., 30 minutes)
 $inactive = 1800;
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactive)) {
+    // Session has expired
     session_unset();
     session_destroy();
-    header("Location: getstarted.php?error=session_expired");
+    header("Location: login.php?error=session_expired");
     exit();
 }
 
 // Update last activity time
 $_SESSION['last_activity'] = time();
 
-// Security check: Verify IP address
+// Optional: Check if IP has changed (potential session hijacking)
 if (!isset($_SESSION['ip_address'])) {
     $_SESSION['ip_address'] = $_SERVER['REMOTE_ADDR'];
 } elseif ($_SESSION['ip_address'] !== $_SERVER['REMOTE_ADDR']) {
+    // IP address has changed, possible session hijacking
     session_unset();
     session_destroy();
-    header("Location: getstarted.php?error=security_violation");
+    header("Location: login.php?error=security_violation");
     exit();
 }
 
-$admin_name = $_SESSION['admin']['name'];
-$admin_username = $_SESSION['admin']['admin_name'];
+$admin_name = $_SESSION['admin']['name'];  // Admin's full name
+$admin_username = $_SESSION['admin']['admin_name'];  // Admin's username
 
 // Fetch feedbacks from the database
 $query = "SELECT client_name, client_email, feedback_subject, feedback_message, submitted_on FROM feedbacks ORDER BY submitted_on DESC";

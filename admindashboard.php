@@ -2,14 +2,16 @@
 include 'db.php';
 session_start();
 
-if (!isset($_SESSION['admin']) || 
-    !is_array($_SESSION['admin']) || 
-    empty($_SESSION['admin']) || 
-    !isset($_SESSION['admin']['name']) || 
+if (
+    !isset($_SESSION['admin']) ||
+    !is_array($_SESSION['admin']) ||
+    empty($_SESSION['admin']) ||
+    !isset($_SESSION['admin']['name']) ||
     !isset($_SESSION['admin']['admin_name']) ||
     !isset($_SESSION['admin']['authenticated']) ||
-    $_SESSION['admin']['authenticated'] !== true) {
-    
+    $_SESSION['admin']['authenticated'] !== true
+) {
+
     // Clear session and redirect
     session_unset();
     session_destroy();
@@ -19,7 +21,7 @@ if (!isset($_SESSION['admin']) ||
 
 
 // Set timeout for inactivity (e.g., 30 minutes)
-$inactive = 1800; 
+$inactive = 1800;
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactive)) {
     // Session has expired
     session_unset();
@@ -45,8 +47,6 @@ if (!isset($_SESSION['ip_address'])) {
 $admin_name = $_SESSION['admin']['name'];  // Admin's full name
 $admin_username = $_SESSION['admin']['admin_name'];  // Admin's username
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -78,7 +78,7 @@ $admin_username = $_SESSION['admin']['admin_name'];  // Admin's username
             <div class="admin-section">
                 <h2>Device Management</h2>
                 <a href="overview3.php">Device Overview</a>
-                <a href="assign_apartment.php">Assign Apartment / Room</a> 
+                <a href="assign_apartment.php">Assign Apartment / Room</a>
                 <!-- <a href="#">Add new device</a> -->
 
             </div>
