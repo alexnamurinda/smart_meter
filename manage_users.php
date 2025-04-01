@@ -1,55 +1,55 @@
-Copy<?php
-    // Include error handler first
-    include 'error_handler.php';
-    include 'db.php';
-    session_start();
+<?php
+// Include error handler first
+include 'error_handler.php';
+include 'db.php';
+session_start();
 
-    try {
-        // First check if the table exists
-        $tableCheck = $conn->query("SHOW TABLES LIKE 'clients'");
-        if ($tableCheck->rowCount() == 0) {
-            trigger_error("The 'clients' table does not exist in the database", E_USER_ERROR);
-        }
-
-        // Fetch employees from the employee table
-        $clientQuery = "SELECT * FROM clients";
-        $clientStmt = $conn->prepare($clientQuery);
-        $clientStmt->execute();
-
-        // Fetch unique apartment IDs for the filter dropdown
-        $apartmentQuery = "SELECT DISTINCT apartment_id FROM clients";
-        $apartmentStmt = $conn->prepare($apartmentQuery);
-        $apartmentStmt->execute();
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Handle AJAX request to delete client
-            $userId = $_POST['id'];
-            $userType = $_POST['client_category'];
-
-            if ($userType === 'tenant') {
-                $deleteQuery = "DELETE FROM clients WHERE client_id = :id";
-            }
-
-            $deleteStmt = $conn->prepare($deleteQuery);
-            $deleteStmt->bindParam(':id', $userId, PDO::PARAM_INT);
-
-            if ($deleteStmt->execute()) {
-                echo json_encode(['success' => true]);
-            } else {
-                echo json_encode(['success' => false]);
-            }
-
-            exit;
-        }
-    } catch (PDOException $e) {
-        // Handle database errors
-        if (getenv('ENVIRONMENT') === 'production') {
-            trigger_error("Database error occurred", E_USER_ERROR);
-        } else {
-            trigger_error("Database error: " . $e->getMessage(), E_USER_ERROR);
-        }
+try {
+    // First check if the table exists
+    $tableCheck = $conn->query("SHOW TABLES LIKE 'clients'");
+    if ($tableCheck->rowCount() == 0) {
+        trigger_error("The 'clients' table does not exist in the database", E_USER_ERROR);
     }
-    ?>
+
+    // Fetch employees from the employee table
+    $clientQuery = "SELECT * FROM clients";
+    $clientStmt = $conn->prepare($clientQuery);
+    $clientStmt->execute();
+
+    // Fetch unique apartment IDs for the filter dropdown
+    $apartmentQuery = "SELECT DISTINCT apartment_id FROM clients";
+    $apartmentStmt = $conn->prepare($apartmentQuery);
+    $apartmentStmt->execute();
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Handle AJAX request to delete client
+        $userId = $_POST['id'];
+        $userType = $_POST['client_category'];
+
+        if ($userType === 'tenant') {
+            $deleteQuery = "DELETE FROM clients WHERE client_id = :id";
+        }
+
+        $deleteStmt = $conn->prepare($deleteQuery);
+        $deleteStmt->bindParam(':id', $userId, PDO::PARAM_INT);
+
+        if ($deleteStmt->execute()) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false]);
+        }
+
+        exit;
+    }
+} catch (PDOException $e) {
+    // Handle database errors
+    if (getenv('ENVIRONMENT') === 'production') {
+        trigger_error("Database error occurred", E_USER_ERROR);
+    } else {
+        trigger_error("Database error: " . $e->getMessage(), E_USER_ERROR);
+    }
+}
+?>
 
 <!DOCTYPE html>
 <html lang="en">

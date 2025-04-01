@@ -25,6 +25,7 @@
 
     <?php
     //PDO database connection
+    include 'error_handler.php';
     include 'databasecreation.php';
     include 'db.php';
 
