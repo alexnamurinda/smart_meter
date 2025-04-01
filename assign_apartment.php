@@ -4,6 +4,7 @@ if (!isset($_SESSION['admin'])) {
     header("Location: getstarted.php?error=unauthorized");
     exit();
 }
+
 // Include the database connection
 include 'db.php';
 
@@ -26,9 +27,21 @@ try {
 
         // Handle adding rooms
         if (isset($_POST['room_id'], $_POST['room_name'], $_POST['apartment_id'])) {
+            // Insert room into rooms table
             $stmt = $conn->prepare("INSERT INTO rooms (room_id, apartment_id, name) VALUES (?, ?, ?)");
             $stmt->execute([$_POST['room_id'], $_POST['apartment_id'], $_POST['room_name']]);
             $message = "Room assigned successfully!";
+
+            // Insert corresponding entry into room_energy table to initialize the room's energy data
+            $stmtRoomEnergy = $conn->prepare("INSERT INTO room_energy (room_id, energy_consumed, remaining_units) VALUES (?, 0.000, 0.000)");
+            $stmtRoomEnergy->execute([$_POST['room_id']]);
+
+            // Optionally, check if room energy insertion was successful and add an additional message
+            if ($stmtRoomEnergy) {
+                $message .= " Room energy initialized successfully!";
+            } else {
+                $message .= " Failed to initialize room energy.";
+            }
         }
 
         // Handle deleting apartment
@@ -50,6 +63,7 @@ try {
     die("Database error: " . $e->getMessage());
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
