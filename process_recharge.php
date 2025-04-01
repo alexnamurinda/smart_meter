@@ -1,6 +1,7 @@
 <?php
 session_start();
 date_default_timezone_set('Africa/Kampala');
+include 'error_handler.php'; // Include the error handler
 include 'db.php';
 
 header("Content-Type: application/json");
