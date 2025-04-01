@@ -1,5 +1,6 @@
 <!-- Backend logic -->
 <?php
+include 'error_handler.php'; // Include the error handler
 include 'db.php'; // Include the database connection.
 include 'databasecreation.php';
 
