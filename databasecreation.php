@@ -3,12 +3,15 @@
 include 'db.php';
 
 try {
-    // Check if the database exists, if not, create it
-    $createDbQuery = "CREATE DATABASE IF NOT EXISTS $db_name";
-    $conn->exec($createDbQuery);
+    // Only create database if not in production
+    if (getenv('ENVIRONMENT') !== 'production') {
+        // Check if the database exists, if not, create it
+        $createDbQuery = "CREATE DATABASE IF NOT EXISTS $db_name";
+        $conn->exec($createDbQuery);
+    }
 
-    // Connect to the newly created database
-    $conn = new PDO("mysql:host=$hostname;dbname=$db_name", $username, $password);
+    // Now connect to the database
+    $conn = new PDO("mysql:host=$hostname;port=$port;dbname=$db_name;charset=$charset", $username, $password, $options);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Create the apartments table
@@ -149,5 +152,7 @@ try {
     ";
     $conn->exec($createRoomEnergyHistoryTableQuery);
 } catch (PDOException $e) {
-    die("ERROR: Could not connect. " . $e->getMessage());
+    // More detailed error reporting for troubleshooting
+    echo "<p>Database Error: " . $e->getMessage() . "</p>";
+    die();
 }
