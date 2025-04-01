@@ -24,9 +24,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
     <?php
-    //PDO database connection
-    include 'databasecreation.php';
-    include 'db.php';
+    // //PDO database connection
+    // include 'databasecreation.php';
+    // include 'db.php';
 
     $statusMessage = '';
 
