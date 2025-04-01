@@ -96,7 +96,7 @@ try {
     $createFeedbackTableQuery = "
     CREATE TABLE IF NOT EXISTS feedbacks (
         feedback_id INT AUTO_INCREMENT PRIMARY KEY,
-        client_id INT NOT NULL,
+        client_id INT NOT NULL default 0,
         client_name VARCHAR(50) NOT NULL,
         client_email VARCHAR(100) NOT NULL,
         feedback_subject VARCHAR(100) NOT NULL,
