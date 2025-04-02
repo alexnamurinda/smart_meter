@@ -34,6 +34,7 @@ $pendingRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <html>
 <head>
     <title>Admin Approval</title>
+    <link rel="stylesheet" href="admnstyling.css">
 </head>
 <body>
     <h2>Pending Residence Approvals</h2>

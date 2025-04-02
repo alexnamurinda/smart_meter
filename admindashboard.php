@@ -71,6 +71,7 @@ $admin_username = $_SESSION['admin']['admin_name'];  // Admin's username
                 <h2>User Management</h2>
                 <a href="manage_users.php">Manage Users</a>
                 <a href="add-client.php">Add new Client</a>
+                <a href="registration_approval.php">Pending approvals</a>
                 <a href="user_feedbacks.php">Feedbacks</a>
                 <a href="#">Transactions</a>
             </div>
