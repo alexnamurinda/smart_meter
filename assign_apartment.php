@@ -21,12 +21,46 @@ try {
                 // Add new apartment
                 $stmt = $conn->prepare("INSERT INTO apartments (apartment_id, name) VALUES (?, ?)");
                 $stmt->execute([$_POST['apartment_id'], $_POST['apartment_name']]);
-                $message = "Apartment added successfully!";
+                
+                // Auto-create 10 rooms for the new apartment
+                $apartment_id = $_POST['apartment_id'];
+                $roomNames = [
+                    "Room 1", "Room 2", "Room 3", "Room 4", 
+                    "Room 5", "Room 6", "Room 7", "Room 8", 
+                    "Room 9", "Room 10"
+                ];
+                
+                // Begin transaction for adding multiple rooms
+                $conn->beginTransaction();
+                
+                try {
+                    // Create 10 rooms with standard naming
+                    for ($i = 1; $i <= 10; $i++) {
+                        $room_id = $apartment_id . "-R" . str_pad($i, 3, "0", STR_PAD_LEFT);
+                        $room_name = $roomNames[$i-1];
+                        
+                        // Insert room into rooms table
+                        $stmtRoom = $conn->prepare("INSERT INTO rooms (room_id, apartment_id, name) VALUES (?, ?, ?)");
+                        $stmtRoom->execute([$room_id, $apartment_id, $room_name]);
+                        
+                        // Initialize room energy data
+                        $stmtRoomEnergy = $conn->prepare("INSERT INTO room_energy (room_id, energy_consumed, remaining_units) VALUES (?, 0.000, 0.000)");
+                        $stmtRoomEnergy->execute([$room_id]);
+                    }
+                    
+                    // Commit the transaction if all rooms were added successfully
+                    $conn->commit();
+                    $message = "Apartment added successfully with 10 default rooms!";
+                } catch (PDOException $e) {
+                    // Rollback the transaction if there was an error
+                    $conn->rollBack();
+                    $message = "Apartment added but failed to create default rooms. Error: " . $e->getMessage();
+                }
             }
         }
 
-        // Handle adding rooms
-        if (isset($_POST['room_id'], $_POST['room_name'], $_POST['apartment_id'])) {
+        // Handle adding rooms manually (keeping this functionality)
+        if (isset($_POST['room_id'], $_POST['room_name'], $_POST['apartment_id']) && !isset($_POST['apartment_name'])) {
             // Insert room into rooms table
             $stmt = $conn->prepare("INSERT INTO rooms (room_id, apartment_id, name) VALUES (?, ?, ?)");
             $stmt->execute([$_POST['room_id'], $_POST['apartment_id'], $_POST['room_name']]);
