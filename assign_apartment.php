@@ -1,9 +1,9 @@
 <?php
-session_start();
-if (!isset($_SESSION['admin'])) {
-    header("Location: getstarted.php?error=unauthorized");
-    exit();
-}
+// session_start();
+// if (!isset($_SESSION['admin'])) {
+//     header("Location: getstarted.php?error=unauthorized");
+//     exit();
+// }
 
 // Include the database connection
 include 'db.php';
