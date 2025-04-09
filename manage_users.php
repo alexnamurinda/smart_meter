@@ -1,7 +1,7 @@
 <?php
 // Include error handler first
 include 'error_handler.php';
-include 'db.php';
+include 'databaseconnection.php';
 session_start();
 
 try {

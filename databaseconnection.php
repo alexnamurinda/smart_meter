@@ -1,8 +1,8 @@
 <?php
 $hostname = getenv('DB_HOST') ?: 'localhost';
 $db_name = getenv('DB_DATABASE') ?: 'kooza_db';
-$username = getenv('DB_USERNAME') ?: 'kooza_user';
-$password = getenv('DB_PASSWORD') ?: 'Kooza@mysql123';
+$username = getenv('DB_USERNAME') ?: 'root';
+$password = getenv('DB_PASSWORD') ?: 'Alex@mysql123';
 $port = getenv('DB_PORT') ?: '3306';
 $charset = 'utf8mb4';
 
@@ -18,12 +18,11 @@ try {
         PDO::ATTR_EMULATE_PREPARES => false,
         PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES $charset"
     ];
-    
+
     $conn = new PDO($dsn, $username, $password, $options);
-    
+
     // Now try to use the database
     $conn->exec("USE `$db_name`");
-    
 } catch (\PDOException $e) {
     if ($isProduction) {
         // Safe error for production
@@ -35,4 +34,3 @@ try {
     }
     die();
 }
-?>

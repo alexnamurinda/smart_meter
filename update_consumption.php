@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 
 // Include the database connection
-include 'db.php';
+include 'databaseconnection.php';
 
 try {
     // Check if POST request has required parameters

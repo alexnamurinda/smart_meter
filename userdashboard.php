@@ -1,7 +1,7 @@
 <?php
 session_start();
 date_default_timezone_set('Africa/Kampala');
-include 'db.php';
+include 'databaseconnection.php';
 
 // Ensure only a user can access this page
 if (!isset($_SESSION['user']) || $_SESSION['user']['authenticated'] !== true) {

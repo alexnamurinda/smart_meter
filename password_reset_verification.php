@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php';
+include 'databaseconnection.php';
 
 // Check if phone number is set in session
 if (!isset($_SESSION['reset_phone'])) {

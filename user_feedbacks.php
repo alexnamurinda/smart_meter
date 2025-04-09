@@ -1,7 +1,7 @@
 <?php
 // Start session and include the database connection
 session_start();
-include 'db.php';
+include 'databaseconnection.php';
 
 // Fetch feedbacks from the database
 $query = "SELECT client_name, client_email, feedback_subject, feedback_message, submitted_on FROM feedbacks ORDER BY submitted_on DESC";

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php';
+include 'databaseconnection.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $entered_otp = $_POST['otp'];

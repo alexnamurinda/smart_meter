@@ -6,7 +6,7 @@
 // }
 
 // Include the database connection
-include 'db.php';
+include 'databaseconnection.php';
 
 try {
     // Handle adding/editing apartments

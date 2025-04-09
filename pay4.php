@@ -1,6 +1,6 @@
 <?php
 // Include the database connection
-include 'db.php';
+include 'databaseconnection.php';
 
 // Get room_id from query parameter
 $room_id = $_GET['room_id'];

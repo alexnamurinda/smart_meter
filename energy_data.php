@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php'; // Include the database connection from db.php
+include 'databaseconnection.php'; // Include the database connection from databaseconnection.php
 
 // Checking if the user is logged in
 if (!isset($_SESSION['user'])) {

@@ -2,7 +2,7 @@
 // update_consumption.php - Endpoint to update room energy consumption
 
 // Include the database connection
-include 'db.php';
+include 'databaseconnection.php';
 
 // Set headers to allow cross-origin requests if needed
 header('Content-Type: application/json');

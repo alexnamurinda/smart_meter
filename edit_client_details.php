@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php';
+include 'databaseconnection.php';
 
 // Fetch client details based on the `client_id` from the query string
 $clientId = $_GET['id'] ?? null;

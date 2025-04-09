@@ -1,7 +1,7 @@
 <!-- Backend logic -->
 <?php
 include 'error_handler.php'; // Include the error handler
-include 'db.php'; // Include the database connection.
+include 'databaseconnection.php'; // Include the database connection.
 include 'databasecreation.php';
 
 session_start();
@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
 
     // Authentication logic
     try {
-        // Use the existing connection from db.php
+        // Use the existing connection from databaseconnection.php
         // $conn already contains the PDO connection
     } catch (PDOException $e) {
         die("Database connection failed: " . $e->getMessage());

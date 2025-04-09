@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 
 // Include the database connection
-include 'db.php';
+include 'databaseconnection.php';
 
 try {
     if (isset($_GET['room_id'])) {

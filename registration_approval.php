@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php';
+include 'databaseconnection.php';
 
 // // Ensure only admin can access
 // if (!isset($_SESSION['admin']) || $_SESSION['admin']['authenticated'] !== true) {

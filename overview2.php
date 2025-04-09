@@ -1,5 +1,5 @@
 <?php
-require 'db.php';
+require 'databaseconnection.php';
 
 // Handle AJAX requests
 if (isset($_GET['action'])) {
