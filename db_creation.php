@@ -1,64 +1,72 @@
 <?php
-include 'db_connection.php'; // Uses PDO
+include 'db_connection.php'; // Now using MySQLi
 
-try {
-    // Create tables
-    $conn->exec("
-        CREATE TABLE IF NOT EXISTS rooms (
-            room_id VARCHAR(50) PRIMARY KEY,
-            name VARCHAR(50) NOT NULL,
-            description TEXT,
-            location VARCHAR(100),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB;
-    ");
+// Create tables (rooms, clients, loads, feedbacks)
+$createRoomsTable = "
+CREATE TABLE IF NOT EXISTS rooms (
+    room_id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    description TEXT,
+    location VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+";
 
-    $conn->exec("
-        CREATE TABLE IF NOT EXISTS clients (
-            client_id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            phone_number VARCHAR(20) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            address VARCHAR(255),
-            room_id VARCHAR(50) UNIQUE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE SET NULL
-        ) ENGINE=InnoDB;
-    ");
+$createClientsTable = "
+CREATE TABLE IF NOT EXISTS clients (
+    client_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(20) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    address VARCHAR(255),
+    room_id VARCHAR(50) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+";
 
-    $conn->exec("
-        CREATE TABLE IF NOT EXISTS loads (
-            load_id INT AUTO_INCREMENT PRIMARY KEY,
-            room_id VARCHAR(50),
-            load_name VARCHAR(50),
-            power_status ENUM('ON', 'OFF') DEFAULT 'OFF',
-            voltage DECIMAL(10,2) DEFAULT 0.00,
-            current DECIMAL(10,2) DEFAULT 0.00,
-            power DECIMAL(10,2) DEFAULT 0.00,
-            energy_consumed DECIMAL(10,2) DEFAULT 0.00,
-            previous_status ENUM('ON', 'OFF') DEFAULT NULL,
-            changed_by VARCHAR(50) DEFAULT 'system',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE CASCADE
-        ) ENGINE=InnoDB;
-    ");
+$createLoadsTable = "
+CREATE TABLE IF NOT EXISTS loads (
+    load_id INT AUTO_INCREMENT PRIMARY KEY,
+    room_id VARCHAR(50),
+    load_name VARCHAR(50),
+    power_status ENUM('ON', 'OFF') DEFAULT 'OFF',
+    voltage DECIMAL(10,2) DEFAULT 0.00,
+    current DECIMAL(10,2) DEFAULT 0.00,
+    power DECIMAL(10,2) DEFAULT 0.00,
+    energy_consumed DECIMAL(10,2) DEFAULT 0.00,
+    previous_status ENUM('ON', 'OFF') DEFAULT NULL,
+    changed_by VARCHAR(50) DEFAULT 'system',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+";
 
-    $conn->exec("
-        CREATE TABLE IF NOT EXISTS feedbacks (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            email VARCHAR(100) NOT NULL,
-            subject VARCHAR(200),
-            message TEXT NOT NULL,
-            submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB;
-    ");
+$createFeedbacksTable = "
+CREATE TABLE IF NOT EXISTS feedbacks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    subject VARCHAR(200),
+    message TEXT NOT NULL,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+";
 
-    echo "<div style='color:green'>All tables created successfully!</div>";
-
-} catch (PDOException $e) {
-    echo "<div style='color:red'>Table creation failed: " . $e->getMessage() . "</div>";
+// Execute queries
+if (!$conn->query($createRoomsTable)) {
+    die("Error creating rooms table: " . $conn->error);
 }
-?>
+if (!$conn->query($createClientsTable)) {
+    die("Error creating clients table: " . $conn->error);
+}
+if (!$conn->query($createLoadsTable)) {
+    die("Error creating loads table: " . $conn->error);
+}
+if (!$conn->query($createFeedbacksTable)) {
+    die("Error creating feedbacks table: " . $conn->error);
+}
+
+echo "<div style='color:green'>All tables created successfully!</div>";
