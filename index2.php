@@ -71,11 +71,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6 hero-text">
-                    <h1>⚠️Alert!⚠️</h1>
-                    <p style="color: red;">Please note that system is currently down!</p>
+                    <h1>Smart Room Power Monitoring System</h1>
+                    <p>Take control of your energy usage with real-time monitoring and intelligent power management for your room.</p>
                     <div class="hero-buttons">
-                        <a href="#" class="btn btn-primary btn-lg" target="_blank">Get Started <i class="fas fa-arrow-right"></i></a>
-                        <a href="#" class="btn btn-outline-light btn-lg ms-3" target="_blank">Log in</a>
+                        <a href="registrationpage.php" class="btn btn-primary btn-lg" target="_blank">Get Started <i class="fas fa-arrow-right"></i></a>
+                        <a href="loginpage.php" class="btn btn-outline-light btn-lg ms-3" target="_blank">Log in</a>
                     </div>
                     <div class="stats-container">
                         <!-- <div class="stat-item">

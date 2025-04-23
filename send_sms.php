@@ -35,7 +35,7 @@ function normalizePhoneNumber($phone_number)
 }
 
 $phone_number = normalizePhoneNumber($user['phone_number']);
-$message = "⚠️ ALERT: High power usage detected. Login to your dashboard: https://yourdomain.com/login.php";
+$message = "⚠️ ALERT: High power usage detected. Login to your dashboard: https://smartmeter-app-7ver3.ondigitalocean.app/loginpage.php";
 
 // Africa's Talking credentials
 $apiUsername = 'agritech_info';
