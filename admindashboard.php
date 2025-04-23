@@ -1,53 +1,56 @@
 <?php
-include 'databaseconnection.php';
-session_start();
+include 'db_connection.php';
 
-if (
-    !isset($_SESSION['admin']) ||
-    !is_array($_SESSION['admin']) ||
-    empty($_SESSION['admin']) ||
-    !isset($_SESSION['admin']['name']) ||
-    !isset($_SESSION['admin']['admin_name']) ||
-    !isset($_SESSION['admin']['authenticated']) ||
-    $_SESSION['admin']['authenticated'] !== true
-) {
+// Fetch all rooms to display for managing
+$roomsQuery = "SELECT * FROM rooms";
+$roomsResult = $conn->query($roomsQuery);
 
-    // Clear session and redirect
-    session_unset();
-    session_destroy();
-    header("Location: getstarted.php?error=unauthorized");
-    exit();
+// Fetch all clients with their room info
+$clientsQuery = "SELECT c.client_id, c.name, c.phone_number, r.name AS room_name, r.room_id, c.address FROM clients c LEFT JOIN rooms r ON c.room_id = r.room_id";
+$clientsResult = $conn->query($clientsQuery);
+
+// Fetch all feedbacks
+$feedbacksQuery = "SELECT * FROM feedbacks ORDER BY submitted_at DESC";
+$feedbacksResult = $conn->query($feedbacksQuery);
+
+
+// Handle Room Creation
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_room'])) {
+    $room_id = $_POST['room_id'];  // Get the room ID from the form
+    $room_name = $_POST['room_name'];
+    $description = $_POST['description'];
+    $location = $_POST['location'];
+
+    // Check if the room ID already exists in the rooms table
+    $stmt = $conn->prepare("SELECT * FROM rooms WHERE room_id = ?");
+    $stmt->bind_param("s", $room_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        // If room ID exists, show an error message
+        echo "<script>alert('Error: Room ID already exists!');</script>";
+    } else {
+        // Create the room
+        $stmt = $conn->prepare("INSERT INTO rooms (room_id, name, description, location) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $room_id, $room_name, $description, $location);
+        if ($stmt->execute()) {
+            // Insert 3 loads with default values
+            $loads = ['Load 1', 'Load 2', 'Load 3'];
+            foreach ($loads as $load_name) {
+                $stmt = $conn->prepare("INSERT INTO loads (room_id, load_name, power_status, voltage, current, power, energy_consumed) VALUES (?, ?, 'OFF', 0.00, 0.00, 0.00, 0.00)");
+                $stmt->bind_param("ss", $room_id, $load_name);
+                $stmt->execute();
+            }
+            echo "<script>alert('Room created successfully!');</script>";
+        } else {
+            echo "<script>alert('Error: " . $stmt->error . "');</script>";
+        }
+    }
 }
-
-
-// Set timeout for inactivity (e.g., 30 minutes)
-$inactive = 1800;
-if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactive)) {
-    // Session has expired
-    session_unset();
-    session_destroy();
-    header("Location: getstarted.php?error=session_expired");
-    exit();
-}
-
-// Update last activity time
-$_SESSION['last_activity'] = time();
-
-// Optional: Check if IP has changed (potential session hijacking)
-if (!isset($_SESSION['ip_address'])) {
-    $_SESSION['ip_address'] = $_SERVER['REMOTE_ADDR'];
-} elseif ($_SESSION['ip_address'] !== $_SERVER['REMOTE_ADDR']) {
-    // IP address has changed, possible session hijacking
-    session_unset();
-    session_destroy();
-    header("Location: getstarted.php?error=security_violation");
-    exit();
-}
-
-$admin_name = $_SESSION['admin']['name'];  // Admin's full name
-$admin_username = $_SESSION['admin']['admin_name'];  // Admin's username
 ?>
 
+<!-- Admin Dashboard -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -55,71 +58,156 @@ $admin_username = $_SESSION['admin']['admin_name'];  // Admin's username
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="admnstyling.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .tab-content {
+            margin-top: 30px;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="admin-dashboard">
-        <header class="admin-header">
-            <h1>Admin Dashboard - SMART_METER_PROJECT</h1>
-            <p>Welcome, <?php echo htmlspecialchars($admin_name . ' (' . $admin_username . ')'); ?>.</p>
-        </header>
 
+    <div class="container">
+        <h2>Smart Homewatt - Admin Dashboard</h2>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#createRoom">Create Room</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#viewClients">View Clients</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#viewFeedbacks">View Feedbacks</a>
+            </li>
+            <!-- <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#manageRooms">Manage Rooms</a>
+        </li> -->
+        </ul>
 
-        <div class="admin-content">
-            <div class="admin-section">
-                <h2>User Management</h2>
-                <a href="manage_users.php">Manage Users</a>
-                <a href="add-client.php">Add new Client</a>
-                <a href="user_feedbacks.php">Feedbacks</a>
-                <a href="#">Transactions</a>
+        <div class="tab-content">
+            <!-- Create Room Tab -->
+            <div id="createRoom" class="container tab-pane active">
+                <h3>Create a New Room</h3>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="room_id" class="form-label">Room ID</label>
+                        <input type="text" class="form-control" name="room_id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="room_name" class="form-label">Room Name</label>
+                        <input type="text" class="form-control" name="room_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Room Description</label>
+                        <textarea class="form-control" name="description" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" name="location" required>
+                    </div>
+                    <button type="submit" name="create_room" class="btn btn-primary">Create Room</button>
+                </form>
             </div>
 
-            <div class="admin-section">
-                <h2>Device Management</h2>
-                <a href="overview3.php">Device Overview</a>
-                <a href="assign_apartment.php">Assign Apartment / Room</a>
-                <a href="registration_approval.php">Pending approvals</a>
-                <!-- <a href="#">Add new device</a> -->
-
+            <!-- View Clients Tab -->
+            <div id="viewClients" class="container tab-pane fade">
+                <h3>Registered Clients</h3>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Phone Number</th>
+                            <th>Room</th>
+                            <th>Address</th>
+                            <!-- <th>Action</th> -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($row = $clientsResult->fetch_assoc()) { ?>
+                            <tr>
+                                <td><?php echo $row['name']; ?></td>
+                                <td><?php echo $row['phone_number']; ?></td>
+                                <td><?php echo $row['room_name']; ?></td>
+                                <td><?php echo $row['address']; ?></td>
+                                <!-- <td> -->
+                                <!-- Turn ON/OFF Room -->
+                                <!-- <a href="toggle_room_status.php?room_id=<?php echo $row['room_id']; ?>&status=ON" class="btn btn-success">Turn ON</a>
+                                <a href="toggle_room_status.php?room_id=<?php echo $row['room_id']; ?>&status=OFF" class="btn btn-danger">Turn OFF</a> -->
+                                <!-- </td> -->
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
             </div>
 
-            <div class="admin-section">
-                <h2>Admin account summary</h2>
-                <a href="#">Account Overview</a>
-                <a href="#">Top up units</a>
+            <!-- View Feedbacks Tab -->
+            <div id="viewFeedbacks" class="container tab-pane fade">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Subject</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($fb = $feedbacksResult->fetch_assoc()) { ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($fb['name']); ?></td>
+                                <td><?php echo htmlspecialchars($fb['email']); ?></td>
+                                <td><?php echo htmlspecialchars($fb['subject']); ?></td>
+                                <td><?php echo nl2br(htmlspecialchars($fb['message'])); ?></td>
+                                <td><?php echo $fb['submitted_at']; ?></td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
             </div>
 
-            <!-- <div class="admin-section">
-            <h2>Leave Requests</h2>
-            <a href="view_leave_requests.php">View Leave Requests</a>
-            <a href="view_leave_requests.php">Approve/Reject Leave</a>
-        </div>
 
-        <div class="admin-section">
-            <h2>Payroll Management</h2>
-            <a href="generate_payslips.php" onclick="showAlert(); return false;">Generate Payslips</a>
-        </div>
-
-        <div class="admin-section">
-            <h2>Company Resources</h2>
-            <a href="manage_resources.php" onclick="showAlert(); return false;">Manage Resources</a>
-        </div>
-
-        <script>
-            function showAlert() {
-                alert("This section includes project future prospect plan. Thank you!");
-            }
-        </script> -->
+            <!-- Manage Rooms Tab -->
+            <div id="manageRooms" class="container tab-pane fade">
+                <h3>Manage Rooms</h3>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Room Name</th>
+                            <th>Location</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($room = $roomsResult->fetch_assoc()) { ?>
+                            <tr>
+                                <td><?php echo $room['name']; ?></td>
+                                <td><?php echo $room['location']; ?></td>
+                                <td>
+                                    <a href="view_room_loads.php?room_id=<?php echo $room['room_id']; ?>" class="btn btn-info">Manage Loads</a>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
 
         </div>
     </div>
 
-    <footer class="admin-footer">
-        <p>&copy; 2024 kooza technologies. All Rights Reserved.</p>
-        <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
-    </footer>
-
+    <!-- Include Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
