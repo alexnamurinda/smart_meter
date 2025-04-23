@@ -4,7 +4,7 @@ require 'db_connection.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['client_id']) || !isset($_SESSION['room_id'])) {
-    header("Location: login.php");
+    header("Location: loginpage.php");
     exit();
 }
 
