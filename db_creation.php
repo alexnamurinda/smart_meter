@@ -69,4 +69,4 @@ if (!$conn->query($createFeedbacksTable)) {
     die("Error creating feedbacks table: " . $conn->error);
 }
 
-echo "<div style='color:green'>All tables created successfully!</div>";
+// echo "<div style='color:green'>All tables created successfully!</div>";
