@@ -15,7 +15,7 @@
       height: 100vh;
     }
     .modal {
-      background: white;
+      background:  transparent;
       padding: 40px;
       border-radius: 15px;
       box-shadow: 0 0 20px rgba(0,0,0,0.1);
