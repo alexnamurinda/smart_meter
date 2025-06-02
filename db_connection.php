@@ -1,7 +1,7 @@
 <?php
 $host = "localhost";
 $user = "root";
-$pass = "";
+$pass = "smartwatt@mysql123";
 $dbname = "homewatt";
 
 // Establish connection to MySQL server (no database selected yet)
