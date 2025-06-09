@@ -4,7 +4,7 @@
 // Database connection
 $servername = "localhost";
 $username = "root";
-$password = "Alex@mysql123";
+$password = "smartwatt@mysql123";
 $dbname = "homewatt";
 
 // Create connection
